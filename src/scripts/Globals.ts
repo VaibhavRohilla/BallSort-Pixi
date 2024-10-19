@@ -1,19 +1,26 @@
-
+  
+import { Howl } from 'howler';
 import * as PIXI from 'pixi.js';
 import { App } from './App';
 import { MyEmitter } from './MyEmitter';
-import { SceneManager } from './SceneManager';
-import { Graphics } from 'pixi.js';
+import { TextStyle } from 'pixi.js';
+import Matter,{ Engine, World } from 'matter-js';
 
 type globalDataType = {
   resources: PIXI.utils.Dict<PIXI.LoaderResource>;
   emitter: MyEmitter | undefined;
+  physixengine : Engine | undefined,
+  World : World | undefined,
   isMobile: boolean;
   // fpsStats : Stats | undefined,
+  soundResources: { [key: string]: Howl };
+
   App: App | undefined,
-};
+}
 
 export const Globals: globalDataType = {
+  physixengine :  undefined,
+  World :  undefined,
   resources: {},
   emitter: undefined,
   get isMobile() {
@@ -21,54 +28,50 @@ export const Globals: globalDataType = {
     return PIXI.utils.isMobile.any;
   },
   // fpsStats: undefined,
-  App: undefined
+  App: undefined,
+  soundResources: {},
 };
 
-export function getColor(color: string) {
+export const style = new TextStyle({
+  dropShadow: true,
+  dropShadowAngle: 1.8,
+  dropShadowColor: "#ffffff",
+  dropShadowDistance: 1,
+  fill: "#4f3130",
+  fillGradientStops: [
+    0.4
+  ],
+  fontWeight: "bolder",
+  lineJoin: "round",
+  miterLimit: 0,
+  stroke: "#4f3130",
+  strokeThickness: 1.5
+});
 
-  if (color == 'r') {
-    return 0xFF0000;
+export function addToWorld(obj : any)
+{
+  if(Globals.World)	
+		Matter.World.add(Globals.World, [obj]);
 
-  } else if (color == 'g') {
-    return 0xAAFF00;
+}
+export function getRandomChoice(): string {
+  const choices = [
+    { item: "blush", weight: 50 },
+    { item: "moneyBag", weight: 30 },
+    { item: "cart", weight: 20 }
+  ];
 
-  } else if (color == 'b') {
-    return 0x1E90FF;
+  const totalWeight = choices.reduce((sum, choice) => sum + choice.weight, 0);
+  const randomValue = Math.random() * totalWeight;
 
-  } else if (color == 'y') {
-
-    return 0xFFEA00;
+  let cumulativeWeight = 0;
+  for (const choice of choices) {
+    cumulativeWeight += choice.weight;
+    if (randomValue < cumulativeWeight) {
+      return choice.item;
+    }
   }
-  return 0xFFFFFF;
-}
 
-type color = 'r' | 'g' | 'b' | 'y';
-export const colors: color[] = ['r', 'g', 'b', 'y'];
-export type tube = color[];
-
-export const GameGeneratorOffset = {
-  tubeXPos: 150,
-  tubeYPos: 720,
-  tubeYOffset: 500,
-  ballXPos: 200,
-  ballYPos: 1000,
-  ballXOffset: 200,
-  ballYOffset: -150,
-}
-
-export function makeTube() {
-  const tube = new Graphics();
-  tube.lineStyle(4, 0xFFFFFF, 1);
-  tube.beginFill(0x000000, 0.1);
-  tube.drawRect(0, 0, 100, (GameData.height + 1) * 70);
-  tube.endFill();
-  return tube;
-}
-
-export const GameData = {
-  currentLevel: 1,
-  noOfTubes: 4,
-  noOfColorsUsed: 3,
-  height: 4,
-  noOfIterations: 4,
+  // Fallback in case no choice was selected (this shouldn't happen)
+  return choices[choices.length - 1].item;
 }

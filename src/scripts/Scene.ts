@@ -13,7 +13,7 @@ export abstract class Scene {
     private mainBackground: BackgroundGraphic | BackgroundSprite | any;
 
 
-    constructor(mainBackgroundColor: number | Texture<Resource> | undefined, fullBackgroundColor: number | Texture<Resource> | undefined = 0x000000) {
+    constructor(mainBackgroundColor: number | Texture<Resource> | undefined, fullBackgroundColor: number | Texture<Resource> | undefined = 0x90d0f7) {
         this.sceneContainer = new Container();
 
 
@@ -42,30 +42,22 @@ export abstract class Scene {
         this.mainContainer.addChild(this.mainBackground);
 
 
-        const mask = new Graphics();
-        mask.beginFill(0x000000);
-        mask.drawRect(0, 0, config.logicalWidth, config.logicalHeight);
-        mask.endFill();
-        this.mainContainer.addChild(mask);
-        this.mainContainer.mask = mask;
-
     }
 
     addToScene(obj: DisplayObject) {
-        console.log(obj);
-
         this.sceneContainer.addChild(obj);
     }
 
     resetMainContainer() {
-        this.mainContainer.x = config.minLeftX;
-        this.mainContainer.y = config.minTopY;
-        this.mainContainer.scale.set(config.minScaleFactor);
-    }
+            this.mainContainer.x = config.minLeftX;
+            this.mainContainer.y = config.minTopY;
+            
+            this.mainContainer.scale.set(config.minScaleFactor);
+        }
 
     resize(): void {
-        this.resetMainContainer();
         this.fullBackground.resetBg(window.innerWidth, window.innerHeight);
+        this.resetMainContainer();
     }
 
     initScene(container: Container) {
